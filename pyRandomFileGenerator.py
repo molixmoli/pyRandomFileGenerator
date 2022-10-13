@@ -81,7 +81,7 @@ while True:
 
     # Comprobar si el directorio de documentos se supera el tamaño esperado (3Gb)
     if size.split()[1] == config.get("main", "localSizeUnit"):
-        if float(size.split()[0]) > config.getint("main", "localSize"):
+        if float(size.split()[0]) > config.getfloat("main", "localSize"):
             logger.info("### Se ha superado el tamaño máximo: " + config.get("main", "localSize") + " " + config.get("main", "localSizeUnit"))
             exit()
 
