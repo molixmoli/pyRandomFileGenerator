@@ -1,8 +1,5 @@
 # pyRandomFileGenerator
 Proyecto para la generación de archivos aleatorios
-<<<<<<< HEAD
-=======
-
 
 ### Instalación
 ```
@@ -89,4 +86,3 @@ sizeDAT = 102400
 ```
 python pyRandomFileGenerator.py
 ```
->>>>>>> dev
