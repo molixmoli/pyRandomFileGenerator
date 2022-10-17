@@ -9,6 +9,7 @@ import glob
 import configparser
 import datetime
 from modules.media import Media
+from modules.characters import Characters
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='INFO', logger=logger)
@@ -104,8 +105,12 @@ while True:
                 folder[extension] = os.path.join(path_target, extension + " " + str(uuid.uuid4()))
                 os.makedirs(folder[extension])
 
+        #Nombre con prefijo
+        prefix_name = config.get("files", "name")
+        if (config.getint("files", "non_ascii") > 0):
+            prefix_name = prefix_name + " - " + Characters.non_ascii(config.getint("files", "non_ascii"))
         for i in range(1, config.getint("files", "num")+1):
-            filename = str(uuid.uuid4()) + " " + config.get("files", "name")
+            filename = str(uuid.uuid4()) + " " + prefix_name
 
             for extension in config.options("extension"):
                 if config.getboolean("extension", extension):
