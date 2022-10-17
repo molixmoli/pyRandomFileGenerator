@@ -94,7 +94,7 @@ while True:
     logger.info("### Directorio '% s' creado" % path_target)
 
     #Generar documentos de forma aleatoria
-    if config.getboolean("files", "random"):
+    if config.getboolean("main", "random"):
         num_sentences = config.getint("extprop", "numSentences")
         media = Media()
 
