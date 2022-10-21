@@ -101,7 +101,7 @@ while True:
         #Cremos los directorios por tipo
         folder = {}
         for extension in config.options("extension"):
-            if config.getboolean("extension", extension):
+            if config.getboolean("extension", extension) and extension != 'avi':
                 folder[extension] = os.path.join(path_target, extension + " " + str(uuid.uuid4()))
                 os.makedirs(folder[extension])
 
@@ -121,7 +121,7 @@ while True:
                     for f in glob.glob(os.path.join(path_target, "*." + extension)):
                         shutil.move(f, folder[extension])
         # crear video
-        if config.getboolean("extension", "mp3"):
+        if config.getboolean("extension", "avi") and config.getint("files", "non_ascii") == 0:
             media.generate_avi(os.path.join(path_target, filename + ".avi"), os.path.join(folder['png']))
 
     # Copiar documentos concretos en diferentes carpetas
