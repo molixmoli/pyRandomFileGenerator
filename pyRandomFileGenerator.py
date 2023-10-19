@@ -72,6 +72,13 @@ def create_file(extension, folder, filename):
     elif (extension == 'dat'):
         media.generate_big_sparse_file(file_out, config.getint("extprop", "sizeDAT"))
 
+# Si lo que se quiere es recorrer una estructura fija de directorios donde se genera la documentacion
+if config.getboolean("main", "experimental"):
+    directories = []
+    fp = open(config.get("main", "pathTarget") + '/expedientes.txt', "r")
+    for x in fp:
+        directories.append(x.rstrip())
+    fp.close()
 
 while True:
 
@@ -86,7 +93,17 @@ while True:
             logger.info("### Se ha superado el tamaño máximo: " + config.get("main", "localSize") + " " + config.get("main", "localSizeUnit"))
             exit()
 
-    # Creamos varios los niveles de carpeta
+    # Si lo que se quiere es recorrer una estructura fija de directorios donde se genera la documentacion
+    if config.getboolean("main", "experimental"):
+        if directories:
+            path_target = directories[0]
+            directories.remove(path_target) #quitamos el valor de la lista
+            logger.info("Directorio de trabajo: " + path_target)
+        if not directories:
+            logger.info("Se han recorrido todos los directorios")
+            exit()
+
+    # Creamos varios niveles de carpeta
     for i in range(1, config.getint("main", "pathLevels")):
         path_target = os.path.join(path_target, str(uuid.uuid4()))
     path_target = os.path.join(path_target, str(uuid.uuid4()))
