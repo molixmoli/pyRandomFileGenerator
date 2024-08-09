@@ -21,6 +21,7 @@ configFilePath = "./config.ini"
 config = configparser.RawConfigParser(allow_no_value=True)
 config.read(configFilePath)
 
+
 def convert_bytes(bytes_number):
     tags = ["Byte", "Kilobyte", "Megabyte", "Gigabyte", "Terabyte"]
 
@@ -46,31 +47,42 @@ def get_path_size(folderpath):
 
     return size
 
-def create_file(extension, folder, filename):
-    txt_source = os.path.join(folder, filename + ".txt")
+
+def random_filename_upper(filename:str, extension:str) -> str:
+    file = f"{filename}.{extension}"
+
     if bool(random.getrandbits(1)):
-        file_out = os.path.join(folder, (filename + "." + extension).upper())
-    else:
-        file_out = os.path.join(folder, (filename + "." + extension).lower())
-    if (extension == 'txt'):
+        return file.upper()
+
+    return file.lower()
+
+
+def create_file(extension, folder, filename) -> str:
+    txt_source = os.path.join(folder, filename + ".txt")
+    file_out = os.path.join(folder, random_filename_upper(filename=filename, extension=extension))
+
+    if extension == 'txt':
         media.generate_big_random_sentences(file_out, config.getint("extprop", "numSentences"))
-    elif (extension == 'docx'):
+    elif extension == 'docx':
         media.generate_docx(txt_source, file_out)
-    elif (extension == 'pdf'):
+    elif extension == 'pdf':
         media.generate_pdf_from_docx(txt_source, file_out)
-    elif (extension == 'jpg' or extension == 'png'):
+    elif extension == 'jpg' or extension == 'png':
         media.generate_img(txt_source, file_out)
-    elif (extension == 'mp3'):
+    elif extension == 'mp3':
         try:
             media.generate_audio(txt_source, file_out)
         except:
             logger.error("ERROR: Creando audio")
-    elif (extension == 'bin'):
+    elif extension == 'bin':
         media.generate_big_random_bin_file(file_out, config.getint("extprop", "sizeBIN"))
-    elif (extension == 'doc'):
+    elif extension == 'doc':
         media.generate_big_random_letters(file_out, config.getint("extprop", "sizeDOC"))
-    elif (extension == 'dat'):
+    elif extension == 'dat':
         media.generate_big_sparse_file(file_out, config.getint("extprop", "sizeDAT"))
+
+    return file_out
+
 
 # Si lo que se quiere es recorrer una estructura fija de directorios donde se genera la documentacion
 if config.getboolean("main", "experimental"):
@@ -129,14 +141,36 @@ while True:
         for i in range(1, config.getint("files", "num")+1):
             filename = str(uuid.uuid4()) + " " + prefix_name
 
+            # Creamos los ficheros
             for extension in config.options("extension"):
                 if config.getboolean("extension", extension):
-                    create_file(extension, path_target, filename)
+                    # file_out = create_file(extension, path_target, filename)
+                    # Creamos un fichero con un nombre fijo+extensión, para luego renombrar
+                    file_out = create_file(extension, path_target, f"file")
+                    logger.info(f"Fichero creado: {os.path.join(path_target, file_out)}")
 
+                    # Quitar si no se quiere tener una espera entre documento creado
+                    # time.sleep(1)
+
+            # Renombramos los ficheros
+            for extension in config.options("extension"):
+                if config.getboolean("extension", extension):
+                    new_name = random_filename_upper(filename=filename, extension=extension)
+                    os.rename(os.path.join(path_target, f"file.{extension}"), os.path.join(path_target, new_name))
+                    logger.info(f"Fichero renombrado: {os.path.join(path_target, new_name)}")
+                    # time.sleep(1)
+
+            # time.sleep(20)
+
+            # Movemos los ficheros a su carpeta
             for extension in config.options("extension"):
                 if config.getboolean("extension", extension):
                     for f in glob.glob(os.path.join(path_target, "*." + extension)):
                         shutil.move(f, folder[extension])
+
+                        # Quitar si no se quiere tener una espera entre documento movido
+                        # time.sleep(1)
+
         # crear video
         if config.getboolean("extension", "avi") and config.getint("files", "non_ascii") == 0:
             media.generate_avi(os.path.join(path_target, filename + ".avi"), os.path.join(folder['png']))
